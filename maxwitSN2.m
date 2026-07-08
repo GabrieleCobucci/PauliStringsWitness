@@ -68,22 +68,11 @@ while abs(alpha1-alpha2) > 10e-8
 
     alpha1 = alpha2;
 
-    %Variables
-    sigmaAAa = sdpvar(d^nc*r);
+    O = PartialTrace(WL*Tensor(id12,idr,sigmaBBb),[4 5 6],[d d r d d r]);
+    [V,D] = eig(O);
+    [emax,indmax] = max(diag(D));
 
-    %Constraints
-    C = [sigmaAAa >= 0, trace(sigmaAAa) == 1];
-
-    %Enlarged state
-    psi = Tensor(sigmaAAa,sigmaBBb);
-
-    %SolveSDP
-    disp('Options')
-    ops=sdpsettings('solver','mosek', 'cachesolvers', 1);
-    diagnostic=solvesdp(C,-real(trace(WL*psi)),ops)
-
-    sigmaAAa = double(sigmaAAa);
-
+    sigmaAAa = V(:,indmax)*V(:,indmax)';
 
     %Variables
     sigmaBBb = sdpvar(d^nc*r);
